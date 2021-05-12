@@ -51,12 +51,15 @@ bool CEdl::ReadEditDecisionLists(const CFileItem& fileItem, const float fFramesP
    * Only check for edit decision lists if the movie is on the local hard drive, or accessed over a
    * network share.
    */
-  const std::string& strMovie = fileItem.GetDynPath();
-  if ((URIUtils::IsHD(strMovie) || URIUtils::IsOnLAN(strMovie)) &&
+  // BLIX const std::string& strMovie = fileItem.GetDynPath();
+  const std::string& strPvrSmbPath = fileItem.GetPvrSmbPath(); // BLIX for EDL for mediaportal on SMB
+  const std::string &strMovie = (strPvrSmbPath.length() == 0) ? fileItem.GetDynPath() : strPvrSmbPath;
+
+  if ((URIUtils::IsHD(strMovie) || URIUtils::IsOnLAN(strMovie)  || (strPvrSmbPath.length() > 0) ) &&
       !URIUtils::IsInternetStream(strMovie))
   {
-    CLog::Log(LOGDEBUG, "%s - Checking for edit decision lists (EDL) on local drive or remote share for: %s",
-              __FUNCTION__, CURL::GetRedacted(strMovie).c_str());
+    CLog::Log(LOGDEBUG, "%s - Checking for edit decision lists (EDL) on local drive or remote share for: %s or smb %s",
+              __FUNCTION__, CURL::GetRedacted(strMovie).c_str(),CURL::GetRedacted(strPvrSmbPath).c_str());
 
     /*
      * Read any available file format until a valid EDL related file is found.

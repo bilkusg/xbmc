@@ -383,6 +383,7 @@ CFileItem& CFileItem::operator=(const CFileItem& item)
   FreeMemory();
   m_strPath = item.m_strPath;
   m_strDynPath = item.m_strDynPath;
+  m_pvrSmbPath = item.m_pvrSmbPath; // BLIX 
   m_bIsParentFolder = item.m_bIsParentFolder;
   m_iDriveType = item.m_iDriveType;
   m_bIsShareOrDrive = item.m_bIsShareOrDrive;

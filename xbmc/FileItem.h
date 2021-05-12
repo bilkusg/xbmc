@@ -126,6 +126,8 @@ public:
   bool IsURL(const CURL& url) const;
   const std::string &GetPath() const { return m_strPath; };
   void SetPath(const std::string &path) { m_strPath = path; };
+  const std::string &GetPvrSmbPath() const { return m_pvrSmbPath;};
+  void SetPvrSmbPath(const std::string &path) { m_pvrSmbPath = path;};
   bool IsPath(const std::string& path, bool ignoreURLOptions = false) const;
 
   const CURL GetDynURL() const;
@@ -288,11 +290,6 @@ public:
   inline const std::shared_ptr<PVR::CPVREpgInfoTag> GetEPGInfoTag() const
   {
     return m_epgInfoTag;
-  }
-
-  inline void SetEPGInfoTag(const std::shared_ptr<PVR::CPVREpgInfoTag>& tag)
-  {
-    m_epgInfoTag = tag;
   }
 
   inline bool HasPVRChannelInfoTag() const
@@ -586,6 +583,7 @@ private:
   void FillMusicInfoTag(const std::shared_ptr<PVR::CPVRChannel>& channel, const std::shared_ptr<PVR::CPVREpgInfoTag>& tag);
 
   std::string m_strPath;            ///< complete path to item
+  std::string m_pvrSmbPath;         /// BLIX the smb path to a pvr recording if known 
   std::string m_strDynPath;
 
   SortSpecial m_specialSort;

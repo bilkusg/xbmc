@@ -447,7 +447,7 @@ void CSelectionStreams::Update(const std::shared_ptr<CDVDInputStream>& input,
 
       AudioStreamInfo info = nav->GetAudioStreamInfo(i);
       s.name     = info.name;
-      s.codec = info.codecName;
+      s.codec    = info.codecName;
       s.language = g_LangCodeExpander.ConvertToISO6392B(info.language);
       s.channels = info.channels;
       s.flags = info.flags;
@@ -660,9 +660,20 @@ CVideoPlayer::~CVideoPlayer()
   }
 }
 
-bool CVideoPlayer::OpenFile(const CFileItem& file, const CPlayerOptions &options)
+bool CVideoPlayer::OpenFile(const CFileItem& file_blix, const CPlayerOptions &options)
 {
-  CLog::Log(LOGINFO, "VideoPlayer::OpenFile: %s", CURL::GetRedacted(file.GetPath()).c_str());
+    /// Substantive BLIX kludge by Gary Bilkus - use the blix_filepath if set by the mediaportal tvserver
+  CLog::Log(LOGINFO, "VideoPlayer::OpenFile: %s", CURL::GetRedacted(file_blix.GetPath()).c_str());
+  CFileItem *file1 = new CFileItem(file_blix);
+  if (file_blix.HasProperty("blix_filepath"))
+  {
+    const std::string &fpath = file_blix.GetProperty("blix_filepath").asString();   
+    file1->SetPvrSmbPath(fpath);
+    CLog::Log(LOGINFO, "VideoPlayer::Pvr SmbPath: %s",
+             fpath.c_str());
+  }
+  const CFileItem& file = *file1;
+   // end BLIX 
 
   if (IsRunning())
   {
@@ -4961,6 +4972,7 @@ void CVideoPlayer::UpdateContent()
 void CVideoPlayer::UpdateContentState()
 {
   CSingleLock lock(m_content.m_section);
+
   m_content.m_videoIndex = m_SelectionStreams.TypeIndexOf(STREAM_VIDEO, m_CurrentVideo.source,
                                                       m_CurrentVideo.demuxerId, m_CurrentVideo.id);
   m_content.m_audioIndex = m_SelectionStreams.TypeIndexOf(STREAM_AUDIO, m_CurrentAudio.source,
@@ -4968,8 +4980,7 @@ void CVideoPlayer::UpdateContentState()
   m_content.m_subtitleIndex = m_SelectionStreams.TypeIndexOf(STREAM_SUBTITLE, m_CurrentSubtitle.source,
                                                          m_CurrentSubtitle.demuxerId, m_CurrentSubtitle.id);
 
-  if (m_pInputStream->IsStreamType(DVDSTREAM_TYPE_DVD) && m_content.m_videoIndex == -1 &&
-      m_content.m_audioIndex == -1)
+  if (m_content.m_videoIndex == -1 && m_content.m_audioIndex == -1)
   {
     std::shared_ptr<CDVDInputStreamNavigator> nav =
           std::static_pointer_cast<CDVDInputStreamNavigator>(m_pInputStream);
